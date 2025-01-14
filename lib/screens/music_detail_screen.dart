@@ -15,7 +15,7 @@ class MusicDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(music.title),
+        title: Text(music.name),
         actions: [
           Consumer<FavoriteProvider>(
             builder: (context, favoriteProvider, child) {
@@ -36,23 +36,43 @@ class MusicDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  music.image,
+                  height: 200,
+                  width: 200,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 200,
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.music_note, size: 64),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             Text(
               'Artist',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            Text(music.artist),
+            Text(music.artistName),
             const SizedBox(height: 16),
             Text(
-              'Album',
+              'Genre',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            Text(music.album),
+            Text(music.genre),
             const SizedBox(height: 16),
             Text(
               'Year',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            Text(music.year.toString()),
+            Text(music.year),
           ],
         ),
       ),

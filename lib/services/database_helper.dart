@@ -18,6 +18,9 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
+    // Delete existing database
+    await deleteDatabase(path);
+
     return await openDatabase(
       path,
       version: 1,
@@ -29,10 +32,11 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE favorites(
         id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        artist TEXT NOT NULL,
-        album TEXT NOT NULL,
-        year INTEGER NOT NULL
+        name TEXT NOT NULL,
+        artistName TEXT NOT NULL,
+        year TEXT NOT NULL,
+        image TEXT NOT NULL,
+        genre TEXT NOT NULL
       )
     ''');
   }

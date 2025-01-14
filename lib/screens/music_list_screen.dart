@@ -92,25 +92,52 @@ class _MusicListScreenState extends State<MusicListScreen> {
       builder: (context, favoriteProvider, child) {
         final isFavorite = favoriteProvider.isFavorite(music.id);
         
-        return ListTile(
-          title: Text(music.title),
-          subtitle: Text('${music.artist} - ${music.album} (${music.year})'),
-          trailing: IconButton(
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : null,
-            ),
-            onPressed: () => favoriteProvider.toggleFavorite(music),
+        return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Image.network(
+            music.image,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: 50,
+                height: 50,
+                color: Colors.grey[300],
+                child: const Icon(Icons.music_note),
+              );
+            },
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MusicDetailScreen(music: music),
-              ),
-            );
-          },
-        );
+        ),
+        title: Text(music.name),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(music.artistName),
+            Text('${music.genre} - ${music.year}'),
+          ],
+        ),
+        trailing: IconButton(
+          icon: Icon(
+            isFavorite ? Icons.favorite : Icons.favorite_border,
+            color: isFavorite ? Colors.red : null,
+          ),
+          onPressed: () => favoriteProvider.toggleFavorite(music),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MusicDetailScreen(music: music),
+            ),
+          );
+        },
+      ),
+    );
       },
     );
   }

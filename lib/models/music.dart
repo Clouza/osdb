@@ -1,37 +1,44 @@
 class Music {
   final String id;
-  final String title;
-  final String artist;
-  final String album;
-  final int year;
+  final String name;
+  final String artistName;
+  final String year;
+  final String image;
+  final String genre;
   bool isFavorite;
 
   Music({
     required this.id,
-    required this.title,
-    required this.artist,
-    required this.album,
+    required this.name,
+    required this.artistName,
     required this.year,
+    required this.image,
+    required this.genre,
     this.isFavorite = false,
   });
 
   factory Music.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> artists = json['artist'] ?? [];
+    final List<dynamic> genres = json['genre'] ?? [];
+    
     return Music(
-      id: json['id'],
-      title: json['title'],
-      artist: json['artist'],
-      album: json['album'],
-      year: json['year'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      artistName: artists.isNotEmpty ? artists[0]['name'] ?? '' : '',
+      year: json['year']?.toString() ?? '',
+      image: json['image'] ?? '',
+      genre: genres.isNotEmpty ? genres[0]['name'] ?? '' : '',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'title': title,
-      'artist': artist,
-      'album': album,
+      'name': name,
+      'artistName': artistName,
       'year': year,
+      'image': image,
+      'genre': genre,
     };
   }
 }
