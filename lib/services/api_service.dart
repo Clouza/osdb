@@ -1,25 +1,36 @@
-// 5ZEsFGRb9Rs16V5un_v-h
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../models/music.dart';
+import 'dart:io';
+import '../models/news.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://osdb-api.confidence.sh/rest';
-  static const String apiKey = '5ZEsFGRb9Rs16V5un_v-h';
+  static const String baseUrl = 'https://ok.surf/api/v1';
 
-  Future<List<Music>> fetchMusic() async {
+  Future<List<News>> fetchNews() async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/$apiKey/album?page=1&limit=20'),
-      );
+      final httpClient = HttpClient()
+        ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+
+      final request = await httpClient.getUrl(Uri.parse('$baseUrl/news-feed'));
+      final response = await request.close();
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseData = json.decode(response.body);
-        List<dynamic> data = responseData['data'] ?? [];
-        return data.map((json) => Music.fromJson(json)).toList();
+        final responseBody = await response.transform(utf8.decoder).join();
+        Map<String, dynamic> data = json.decode(responseBody);
+        List<News> allNews = [];
+
+        // Mengambil berita dari setiap kategori
+        data.forEach((category, newsList) {
+          if (newsList is List) {
+            allNews.addAll(
+              newsList.map((newsItem) => News.fromJson(newsItem)).toList()
+            );
+          }
+        });
+
+        return allNews;
       } else {
-        throw Exception('Failed to load music');
+        throw Exception('Failed to load news');
       }
     } catch (e) {
       throw Exception('Error: $e');

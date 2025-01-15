@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/music.dart';
+import '../models/news.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -9,26 +9,20 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-    Future<Database> get database async {
+  Future<Database> get database async {
     if (_database != null) return _database!;
     
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'music.db');
+    final path = join(dbPath, 'news.db');
     debugPrint('Database path: $path');
     
-    bool exists = await databaseExists(path);
-    debugPrint('Database exists: $exists');
-    
-    _database = await _initDB('music.db');
+    _database = await _initDB('news.db');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
-    // Delete existing database
-    // await deleteDatabase(path);
 
     return await openDatabase(
       path,
@@ -40,58 +34,47 @@ class DatabaseHelper {
   Future _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE favorites(
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        artistName TEXT NOT NULL,
-        year TEXT NOT NULL,
-        image TEXT NOT NULL,
-        genre TEXT NOT NULL
+        link TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        source TEXT NOT NULL,
+        sourceIcon TEXT NOT NULL,
+        imageUrl TEXT NOT NULL
       )
     ''');
   }
 
-  Future<void> insertFavorite(Music music) async {
+  Future<void> insertFavorite(News news) async {
     final db = await instance.database;
-    debugPrint('Attempting to insert: ${music.toMap()}');
+    debugPrint('Inserting favorite: ${news.toMap()}');
     
     try {
       await db.insert(
         'favorites',
-        music.toMap(),
+        news.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      
-      final inserted = await db.query(
-        'favorites',
-        where: 'id = ?',
-        whereArgs: [music.id],
-      );
-      debugPrint('Verification after insert: $inserted');
-      
-      final allRows = await db.query('favorites');
-      debugPrint('All rows after insert: $allRows');
-    } catch (e, stackTrace) {
-      debugPrint('Error inserting: $e');
-      debugPrint('Stack trace: $stackTrace');
+      debugPrint('Insert successful');
+    } catch (e) {
+      debugPrint('Error inserting favorite: $e');
     }
   }
 
-  Future<void> deleteFavorite(String id) async {
+  Future<void> deleteFavorite(String link) async {
     final db = await instance.database;
     await db.delete(
       'favorites',
-      where: 'id = ?',
-      whereArgs: [id],
+      where: 'link = ?',
+      whereArgs: [link],
     );
   }
 
-  Future<List<Music>> getFavorites() async {
+  Future<List<News>> getFavorites() async {
     try {
       final db = await instance.database;
       final List<Map<String, dynamic>> maps = await db.query('favorites');
       debugPrint('Loading favorites from DB: $maps');
       return List.generate(maps.length, (i) {
-        return Music.fromJson(maps[i])..isFavorite = true;
+        return News.fromMap(maps[i])..isFavorite = true;
       });
     } catch (e) {
       debugPrint('Error loading favorites: $e');

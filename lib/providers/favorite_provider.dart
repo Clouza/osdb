@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:osdb/models/music.dart';
-import 'package:osdb/services/database_helper.dart';
+import '../models/news.dart';
+import '../services/database_helper.dart';
 
 class FavoriteProvider with ChangeNotifier {
-  final List<Music> _favorites = [];
-  List<Music> get favorites => _favorites;
+  final List<News> _favorites = [];
+  List<News> get favorites => _favorites;
 
   Future<void> loadFavorites() async {
     final favs = await DatabaseHelper.instance.getFavorites();
@@ -13,19 +13,19 @@ class FavoriteProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleFavorite(Music music) async {
-    final isExist = _favorites.any((element) => element.id == music.id);
+  Future<void> toggleFavorite(News news) async {
+    final isExist = _favorites.any((element) => element.link == news.link);
     if (isExist) {
-      await DatabaseHelper.instance.deleteFavorite(music.id);
-      _favorites.removeWhere((element) => element.id == music.id);
+      await DatabaseHelper.instance.deleteFavorite(news.link);
+      _favorites.removeWhere((element) => element.link == news.link);
     } else {
-      await DatabaseHelper.instance.insertFavorite(music);
-      _favorites.add(music..isFavorite = true);
+      await DatabaseHelper.instance.insertFavorite(news);
+      _favorites.add(news..isFavorite = true);
     }
     notifyListeners();
   }
 
-  bool isFavorite(String id) {
-    return _favorites.any((element) => element.id == id);
+  bool isFavorite(String link) {
+    return _favorites.any((element) => element.link == link);
   }
 }
