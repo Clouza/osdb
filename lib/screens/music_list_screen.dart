@@ -19,7 +19,9 @@ class _MusicListScreenState extends State<MusicListScreen> {
   void initState() {
     super.initState();
     _musicList = ApiService().fetchMusic();
-    Provider.of<FavoriteProvider>(context, listen: false).loadFavorites();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FavoriteProvider>(context, listen: false).loadFavorites();
+    });
   }
 
   @override
